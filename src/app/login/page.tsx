@@ -8,13 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Sparkles, Mail, Lock, Eye, EyeOff, Github } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
+import { Sparkles, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn } = useAuth();
+  const { signIn: nextAuthSignIn } = require("next-auth/react");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +23,10 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await signIn(email, password);
+      const result = await (await import("next-auth/react")).signIn("credentials", {
+        email, password, redirect: false,
+      });
+      if (result?.error) throw new Error(result.error === "CredentialsSignin" ? "Invalid credentials" : result.error);
       toast.success("Welcome back!");
       router.push("/dashboard");
     } catch (err: any) {

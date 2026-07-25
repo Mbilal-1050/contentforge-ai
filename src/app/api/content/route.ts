@@ -1,42 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { contentUploadSchema } from "@/lib/validations";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { contentSources, users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
+    const session = await auth();
+    if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
-    const parsed = contentUploadSchema.safeParse(body);
-    if (!parsed.success) {
+
+    if (!body.title || !body.content) {
       return NextResponse.json(
-        { error: "Invalid content", details: parsed.error.flatten() },
+        { error: "Title and content are required" },
         { status: 400 }
       );
     }
 
-    const { title, sourceType, sourceUrl, content } = parsed.data;
-    const wordCount = content.split(/\s+/).length;
+    const wordCount = (body.content as string).split(/\s+/).length;
 
-    const { data: source, error } = await supabase
-      .from("content_sources")
-      .insert({
-        user_id: user.id,
-        title,
-        source_type: sourceType,
-        source_url: sourceUrl || null,
-        content,
-        word_count: wordCount,
+    const [source] = await db
+      .insert(contentSources)
+      .values({
+        userId: (session.user as any).id,
+        title: body.title,
+        sourceType: body.sourceType || "blog",
+        sourceUrl: body.sourceUrl || null,
+        content: body.content,
+        wordCount,
       })
-      .select()
-      .single();
-
-    if (error) throw error;
+      .returning();
 
     return NextResponse.json({ success: true, source }, { status: 201 });
   } catch (error) {
@@ -50,29 +46,28 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
+    const session = await auth();
+    if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userId = (session.user as any).id;
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get("limit") || "20");
-    const offset = parseInt(searchParams.get("offset") || "0");
 
-    const { data: sources, error } = await supabase
-      .from("content_sources")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (error) throw error;
+    const sources = await db
+      .select()
+      .from(contentSources)
+      .where(eq(contentSources.userId, userId))
+      .orderBy(contentSources.createdAt)
+      .limit(limit);
 
     return NextResponse.json({ sources });
   } catch (error) {
     console.error("Content fetch error:", error);
-    return NextResponse.json({ error: "Failed to fetch content" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch content" },
+      { status: 500 }
+    );
   }
 }

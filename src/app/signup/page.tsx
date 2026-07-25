@@ -8,14 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Sparkles, Mail, Lock, User, Eye, EyeOff, Github, Check } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
+import { Sparkles, Mail, Lock, User, Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "sonner";
+import { signIn } from "next-auth/react";
 
 function SignUpPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { signUp } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,8 +31,20 @@ function SignUpPageInner() {
     e.preventDefault();
     setLoading(true);
     try {
-      await signUp(email, password, name);
-      toast.success("Account created! Check your email to verify.");
+      // Register first
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Registration failed");
+      }
+      // Auto sign in
+      const result = await signIn("credentials", { email, password, redirect: false });
+      if (result?.error) throw new Error(result.error);
+      toast.success("Account created!");
       router.push("/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Failed to create account");

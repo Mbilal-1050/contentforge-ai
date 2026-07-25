@@ -1,37 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { generatedContent } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
+    const session = await auth();
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userId = (session.user as any).id;
     const { searchParams } = new URL(req.url);
     const sourceId = searchParams.get("sourceId");
     const limit = parseInt(searchParams.get("limit") || "50");
 
-    let query = supabase
-      .from("generated_content")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(limit);
+    let query = db
+      .select()
+      .from(generatedContent)
+      .where(eq(generatedContent.userId, userId))
+      .orderBy(generatedContent.createdAt);
 
-    if (sourceId) {
-      query = query.eq("source_id", sourceId);
-    }
+    const items = await query.limit(limit);
 
-    const { data: generated, error } = await query;
-
-    if (error) throw error;
-
-    return NextResponse.json({ generated });
+    return NextResponse.json({ generated: items });
   } catch (error) {
-    console.error("Generated content fetch error:", error);
+    console.error("Generated fetch error:", error);
     return NextResponse.json(
       { error: "Failed to fetch generated content" },
       { status: 500 }

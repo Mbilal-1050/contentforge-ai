@@ -1,121 +1,92 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { User } from "@supabase/supabase-js";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-interface Profile {
-  id: string;
-  email: string;
-  name: string;
-  avatar_url: string | null;
-  bio: string | null;
-  company: string | null;
-  website: string | null;
-  plan: string;
-  subscription_status: string;
-  credits_remaining: number;
-  credits_total: number;
-}
-
-interface AuthContextType {
-  user: User | null;
-  profile: Profile | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  updateProfile: (data: Partial<Profile>) => Promise<void>;
-  refreshProfile: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType>({} as AuthContextType);
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const supabase = createSupabaseBrowserClient();
-
-  const refreshProfile = useCallback(async () => {
-    if (!user) return;
-    const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-    if (data) setProfile(data);
-  }, [user, supabase]);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null);
-      if (session?.user) {
-        supabase.from("profiles").select("*").eq("id", session.user.id).single().then(({ data }) => {
-          if (data) setProfile(data);
-          setLoading(false);
-        });
-      } else {
-        setLoading(false);
-      }
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-      if (session?.user) {
-        supabase.from("profiles").select("*").eq("id", session.user.id).single().then(({ data }) => {
-          if (data) setProfile(data);
-        });
-      } else {
-        setProfile(null);
-      }
-    });
-
-    return () => listener.subscription.unsubscribe();
-  }, [supabase]);
+export function useAuth() {
+  const { data: session, status, update } = useSession();
+  const router = useRouter();
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    const result = await (window as any).__nextAuthSignIn?.("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      throw new Error(result.error === "CredentialsSignin"
+        ? "Invalid email or password"
+        : result.error);
+    }
+
+    return result;
   };
 
   const signUp = async (email: string, password: string, name: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { name } },
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, name }),
     });
-    if (error) throw error;
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Registration failed");
+    }
+
+    // Auto sign in after registration
+    return signIn(email, password);
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setProfile(null);
+    await fetch("/api/auth/signout", { method: "POST" });
+    router.push("/");
   };
 
-  const updateProfile = async (data: Partial<Profile>) => {
-    if (!user) throw new Error("Not authenticated");
-    const { error } = await supabase.from("profiles").update(data).eq("id", user.id);
-    if (error) throw error;
-    await refreshProfile();
+  const updateProfile = async (data: Record<string, string>) => {
+    const res = await fetch("/api/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) throw new Error("Failed to update profile");
+    await update();
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        profile,
-        loading,
-        signIn,
-        signUp,
-        signOut,
-        updateProfile,
-        refreshProfile,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-}
+  const refreshProfile = async () => {
+    await update();
+  };
 
-export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
+  return {
+    user: session?.user || null,
+    profile: session?.user
+      ? {
+          id: (session.user as any).id,
+          email: session.user.email || "",
+          name: session.user.name || "",
+          image: session.user.image,
+        }
+      : null,
+    loading: status === "loading",
+    signIn: async (email: string, password: string) => {
+      const { signIn: nextAuthSignIn } = await import("next-auth/react");
+      const result = await nextAuthSignIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      if (result?.error) {
+        throw new Error(result.error === "CredentialsSignin"
+          ? "Invalid email or password"
+          : result.error);
+      }
+    },
+    signUp,
+    signOut,
+    updateProfile,
+    refreshProfile,
+  };
 }

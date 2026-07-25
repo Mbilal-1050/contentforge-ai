@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { generatedContent, contentSources, users } from "@/lib/db/schema";
 import { repurposeContent } from "@/lib/ai/repurpose";
-import { repurposeSchema } from "@/lib/validations";
+import { eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
+    const session = await auth();
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check credits
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("credits_remaining, plan")
-      .eq("id", user.id)
-      .single();
+    const userId = (session.user as any).id;
 
-    if (!profile || profile.credits_remaining <= 0) {
+    // Check credits
+    const [user] = await db
+      .select({ creditsRemaining: users.creditsRemaining, plan: users.plan })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user || user.creditsRemaining <= 0) {
       return NextResponse.json(
         { error: "No credits remaining. Please upgrade your plan." },
         { status: 402 }
@@ -27,25 +29,23 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const parsed = repurposeSchema.safeParse(body);
-    if (!parsed.success) {
+    const { contentId, targetPlatforms, tone = "professional", language = "en" } = body;
+
+    if (!contentId || !targetPlatforms?.length) {
       return NextResponse.json(
-        { error: "Invalid request", details: parsed.error.flatten() },
+        { error: "contentId and targetPlatforms are required" },
         { status: 400 }
       );
     }
 
-    const { contentId, targetPlatforms, tone, language } = parsed.data;
-
     // Fetch source content
-    const { data: sourceContent } = await supabase
-      .from("content_sources")
-      .select("*")
-      .eq("id", contentId)
-      .eq("user_id", user.id)
-      .single();
+    const [sourceContent] = await db
+      .select()
+      .from(contentSources)
+      .where(eq(contentSources.id, contentId))
+      .limit(1);
 
-    if (!sourceContent) {
+    if (!sourceContent || sourceContent.userId !== userId) {
       return NextResponse.json(
         { error: "Content source not found" },
         { status: 404 }
@@ -56,45 +56,41 @@ export async function POST(req: NextRequest) {
     const generated = await repurposeContent({
       content: sourceContent.content,
       title: sourceContent.title,
-      sourceType: sourceContent.source_type,
+      sourceType: sourceContent.sourceType,
       targetPlatforms,
       tone,
       language,
     });
 
-    // Save generated content to DB
+    // Save to DB
     const savedItems = [];
     for (const item of generated) {
-      const { data: saved } = await supabase
-        .from("generated_content")
-        .insert({
-          user_id: user.id,
-          source_id: contentId,
+      const [saved] = await db
+        .insert(generatedContent)
+        .values({
+          userId,
+          sourceId: contentId,
           platform: item.platform,
           format: item.format,
           tone,
           content: item.content,
-          word_count: item.wordCount,
+          wordCount: item.wordCount,
         })
-        .select()
-        .single();
+        .returning();
 
       if (saved) savedItems.push(saved);
     }
 
     // Deduct credit
-    await supabase
-      .from("profiles")
-      .update({
-        credits_remaining: profile.credits_remaining - 1,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", user.id);
+    await db
+      .update(users)
+      .set({ creditsRemaining: user.creditsRemaining - 1 })
+      .where(eq(users.id, userId));
 
     return NextResponse.json({
       success: true,
       generated: savedItems,
-      creditsRemaining: profile.credits_remaining - 1,
+      creditsRemaining: user.creditsRemaining - 1,
     });
   } catch (error) {
     console.error("Repurpose error:", error);

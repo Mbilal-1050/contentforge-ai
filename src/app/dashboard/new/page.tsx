@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { PLATFORMS, TONES, PRICING_PLANS } from "@/lib/constants";
 import { toast } from "sonner";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 const platformIcons: Record<string, any> = {
@@ -54,7 +54,7 @@ function NewRepurposePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sourceId = searchParams.get("id");
-  const supabase = createSupabaseBrowserClient();
+  const { data: session } = useSession();
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -77,23 +77,30 @@ function NewRepurposePageInner() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/login"); return; }
-      const { data: prof } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-      setProfile(prof);
+      if (!session) return;
+
+      const res = await fetch("/api/profile");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.profile) setProfile(data.profile);
+      }
 
       if (sourceId) {
-        const { data: src } = await supabase.from("content_sources").select("*").eq("id", sourceId).eq("user_id", user.id).single();
-        if (src) {
-          setTitle(src.title);
-          setSourceType(src.source_type);
-          setContent(src.content);
-          if (src.source_url) { setSourceUrl(src.source_url); setInputMode("url"); }
+        const srcRes = await fetch(`/api/content?limit=100`);
+        if (srcRes.ok) {
+          const data = await srcRes.json();
+          const src = (data.sources || []).find((s: any) => s.id === sourceId);
+          if (src) {
+            setTitle(src.title);
+            setSourceType(src.sourceType || src.source_type);
+            setContent(src.content);
+            if (src.sourceUrl || src.source_url) { setSourceUrl(src.sourceUrl || src.source_url); setInputMode("url"); }
+          }
         }
       }
     }
     load();
-  }, [sourceId]);
+  }, [sourceId, session]);
 
   const togglePlatform = (platformId: string) => {
     setSelectedPlatforms((prev) =>
@@ -108,18 +115,13 @@ function NewRepurposePageInner() {
     }
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not logged in");
+      const res = await fetch("/api/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, sourceType, sourceUrl: sourceUrl || undefined, content }),
+      });
 
-      const { data: source } = await supabase.from("content_sources").insert({
-        user_id: user.id,
-        title,
-        source_type: sourceType,
-        source_url: sourceUrl || null,
-        content,
-        word_count: content.split(/\s+/).length,
-      }).select().single();
-
+      if (!res.ok) throw new Error("Failed to save");
       toast.success("Content saved!");
       setStep(2);
     } catch (err: any) {
@@ -137,12 +139,10 @@ function NewRepurposePageInner() {
 
     setGenerating(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not logged in");
-
-      // Get saved content
-      const { data: sources } = await supabase.from("content_sources").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1);
-      const source = sources?.[0];
+      // Get most recent saved content
+      const contentRes = await fetch("/api/content?limit=1");
+      const contentData = await contentRes.json();
+      const source = contentData.sources?.[0];
 
       const res = await fetch("/api/repurpose", {
         method: "POST",
@@ -165,8 +165,11 @@ function NewRepurposePageInner() {
       setStep(3);
 
       // Refresh profile credits
-      const { data: prof } = await supabase.from("profiles").select("credits_remaining").eq("id", user.id).single();
-      if (prof) setProfile((prev: any) => ({ ...prev, credits_remaining: prof.credits_remaining }));
+      const profileRes = await fetch("/api/profile");
+      if (profileRes.ok) {
+        const profData = await profileRes.json();
+        if (profData.profile) setProfile(profData.profile);
+      }
 
       toast.success(`Generated ${data.generated.length} pieces!`);
     } catch (err: any) {

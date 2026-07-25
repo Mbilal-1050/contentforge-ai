@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { PRICING_PLANS } from "@/lib/constants";
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
+    const session = await auth();
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userId = (session.user as any).id;
     const body = await req.json();
     const { priceId } = body;
 
@@ -21,36 +23,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid price ID" }, { status: 400 });
     }
 
-    // Get or create Paddle customer
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("paddle_customer_id, email")
-      .eq("id", user.id)
-      .single();
+    const [user] = await db
+      .select({ paddleCustomerId: users.paddleCustomerId, email: users.email })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
 
-    let customerId = profile?.paddle_customer_id;
+    const customerId = user?.paddleCustomerId;
 
-    // Create Paddle transaction
-    const paddleResponse = await fetch(
-      `https://${process.env.PADDLE_ENVIRONMENT === "production" ? "api" : "sandbox-api"}.paddle.com/transactions`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.PADDLE_API_KEY}`,
+    const apiUrl = `https://${process.env.PADDLE_ENVIRONMENT === "production" ? "api" : "sandbox-api"}.paddle.com/transactions`;
+
+    const paddleResponse = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.PADDLE_API_KEY}`,
+      },
+      body: JSON.stringify({
+        items: [{ price_id: priceId, quantity: 1 }],
+        customer_id: customerId || undefined,
+        customer: customerId ? undefined : { email: user?.email || session.user.email! },
+        checkout: {
+          url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?checkout=success`,
         },
-        body: JSON.stringify({
-          items: [{ price_id: priceId, quantity: 1 }],
-          customer_id: customerId || undefined,
-          customer: customerId
-            ? undefined
-            : { email: user.email! },
-          checkout: {
-            url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?checkout=success`,
-          },
-        }),
-      }
-    );
+      }),
+    });
 
     if (!paddleResponse.ok) {
       const error = await paddleResponse.text();
@@ -65,18 +62,12 @@ export async function POST(req: NextRequest) {
     const checkoutUrl = transaction.data?.checkout?.url;
 
     if (!checkoutUrl) {
-      return NextResponse.json(
-        { error: "No checkout URL returned" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "No checkout URL" }, { status: 500 });
     }
 
     return NextResponse.json({ url: checkoutUrl });
   } catch (error) {
     console.error("Checkout error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
