@@ -1,21 +1,24 @@
-import { drizzle } from "drizzle-orm/neon-serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import * as schema from "./schema";
 
-const sql = neon(process.env.DATABASE_URL!);
-export const db = drizzle(sql, { schema });
+let _db: any = null;
 
-// Singleton pattern for Next.js hot reload
-declare global {
-  var __db: ReturnType<typeof drizzle<typeof schema>> | undefined;
-}
-
-export function getDb() {
-  if (process.env.NODE_ENV === "development") {
-    if (!globalThis.__db) {
-      globalThis.__db = drizzle(neon(process.env.DATABASE_URL!), { schema });
-    }
-    return globalThis.__db;
+function getClient() {
+  if (!_db) {
+    const url = process.env.DATABASE_URL;
+    if (!url) throw new Error("DATABASE_URL is not set");
+    const sql = neon(url);
+    _db = drizzle({ client: sql, schema });
   }
-  return drizzle(neon(process.env.DATABASE_URL!), { schema });
+  return _db;
 }
+
+export const db: ReturnType<typeof drizzle<typeof schema>> = new Proxy(
+  {} as any,
+  {
+    get(_, prop) {
+      return getClient()[prop];
+    },
+  },
+);

@@ -123,10 +123,6 @@ export default function LoginPage() {
                 </svg>
                 Google
               </Button>
-              <Button variant="outline" className="w-full">
-                <Github className="w-5 h-5 mr-2" />
-                GitHub
-              </Button>
             </div>
           </CardContent>
           <CardFooter className="justify-center">
