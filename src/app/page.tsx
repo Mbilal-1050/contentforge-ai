@@ -568,19 +568,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA */}{/* CTA */}
+      {/* CTA */}
       <section className="py-20 sm:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="relative p-10 sm:p-16 rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 overflow-hidden">
             <div className="absolute inset-0 bg-black/10" />
-            <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE4YzEuNjU3IDAgMy0xLjM0MyAzLTNzLTEuMzQzLTMtMy0zLTMgMS4zNDMtMyAzIDEuMzQzIDMgMyAzem0tNiAyNGMtMS42NTcgMC0zIDEuMzQzLTMgM3MxLjM0MyAzIDMgMyAzLTEuMzQzIDMtMy0xLjM0My0zLTMtM3oiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20" />
-
             <div className="relative">
               <h2 className="text-3xl sm:text-4xl font-bold text-white font-display mb-4">
                 Ready to 10x your content output?
               </h2>
               <p className="text-lg text-white/80 mb-8 max-w-xl mx-auto">
-                Join 2,500+ creators who publish more content in less time with AI-powered repurposing.
+                Join 15,000+ creators who publish more content in less time with AI-powered repurposing.
               </p>
               <Link href="/signup">
                 <Button size="lg" variant="secondary" className="text-lg px-10 py-6 h-auto">
@@ -591,7 +589,11 @@ export default function LandingPage() {
                 3 free generations • Set up in 60 seconds
               </p>
             </div>
-       <Footer />
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 }
