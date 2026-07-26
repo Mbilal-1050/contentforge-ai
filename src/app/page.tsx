@@ -250,14 +250,40 @@ export default function LandingPage() {
       {/* Platform icons bar */}
       <section className="py-8 border-y border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-gray-500 mb-4">Repurpose to all major platforms</p>
-          <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-10">
-            {platforms.map(({ icon: Icon, name }) => (
-              <div key={name} className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                <Icon className="w-5 h-5" />
-                <span className="text-sm font-medium">{name}</span>
-              </div>
-            ))}
+          <p className="text-center text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">Repurpose to all major platforms</p>
+          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4">
+            <div className="flex flex-col items-center gap-1.5 group">
+              <div className="w-12 h-12 rounded-xl bg-[#1DA1F2]/10 flex items-center justify-center group-hover:bg-[#1DA1F2]/20 transition-colors"><Twitter className="w-6 h-6 text-[#1DA1F2]" /></div>
+              <span className="text-xs font-medium text-gray-500 group-hover:text-[#1DA1F2] transition-colors">Twitter/X</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5 group">
+              <div className="w-12 h-12 rounded-xl bg-[#0A66C2]/10 flex items-center justify-center group-hover:bg-[#0A66C2]/20 transition-colors"><Linkedin className="w-6 h-6 text-[#0A66C2]" /></div>
+              <span className="text-xs font-medium text-gray-500 group-hover:text-[#0A66C2] transition-colors">LinkedIn</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5 group">
+              <div className="w-12 h-12 rounded-xl bg-[#E4405F]/10 flex items-center justify-center group-hover:bg-[#E4405F]/20 transition-colors"><Instagram className="w-6 h-6 text-[#E4405F]" /></div>
+              <span className="text-xs font-medium text-gray-500 group-hover:text-[#E4405F] transition-colors">Instagram</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5 group">
+              <div className="w-12 h-12 rounded-xl bg-[#FF0000]/10 flex items-center justify-center group-hover:bg-[#FF0000]/20 transition-colors"><Youtube className="w-6 h-6 text-[#FF0000]" /></div>
+              <span className="text-xs font-medium text-gray-500 group-hover:text-[#FF0000] transition-colors">YouTube</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5 group">
+              <div className="w-12 h-12 rounded-xl bg-[#1877F2]/10 flex items-center justify-center group-hover:bg-[#1877F2]/20 transition-colors"><Share2 className="w-6 h-6 text-[#1877F2]" /></div>
+              <span className="text-xs font-medium text-gray-500 group-hover:text-[#1877F2] transition-colors">Facebook</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5 group">
+              <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-gray-200 dark:group-hover:bg-gray-700 transition-colors"><Play className="w-6 h-6 text-gray-700 dark:text-gray-300" /></div>
+              <span className="text-xs font-medium text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">TikTok</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5 group">
+              <div className="w-12 h-12 rounded-xl bg-[#FF6B35]/10 flex items-center justify-center group-hover:bg-[#FF6B35]/20 transition-colors"><Copy className="w-6 h-6 text-[#FF6B35]" /></div>
+              <span className="text-xs font-medium text-gray-500 group-hover:text-[#FF6B35] transition-colors">Newsletter</span>
+            </div>
+            <div className="flex flex-col items-center gap-1.5 group">
+              <div className="w-12 h-12 rounded-xl bg-[#10B981]/10 flex items-center justify-center group-hover:bg-[#10B981]/20 transition-colors"><Download className="w-6 h-6 text-[#10B981]" /></div>
+              <span className="text-xs font-medium text-gray-500 group-hover:text-[#10B981] transition-colors">Blog</span>
+            </div>
           </div>
         </div>
 
@@ -272,7 +298,7 @@ export default function LandingPage() {
               <span className="text-xs text-gray-500">Active Creators</span>
             </div>
             <div className="flex flex-col items-center gap-1">
-              <span className="text-2xl font-extrabold text-gradient">150K+</span>
+              <span className="text-2xl font-extrabold text-gradient">500K+</span>
               <span className="text-xs text-gray-500">Pieces Generated</span>
             </div>
             <div className="flex flex-col items-center gap-1">
@@ -280,7 +306,7 @@ export default function LandingPage() {
               <span className="text-xs text-gray-500">Average Rating</span>
             </div>
             <div className="flex flex-col items-center gap-1">
-              <span className="text-2xl font-extrabold text-gradient">12hr</span>
+              <span className="text-2xl font-extrabold text-gradient">15hr</span>
               <span className="text-xs text-gray-500">Avg. Time Saved/wk</span>
             </div>
           </div>
@@ -288,10 +314,12 @@ export default function LandingPage() {
       </section>
 
       {/* Demo / Preview */}
-      <section id="demo" className="py-20 sm:py-28 bg-white dark:bg-gray-950">
+      <section id="demo" className="py-20 sm:py-28 bg-gray-50/50 dark:bg-gray-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge className="mb-4">See It In Action</Badge>
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-medium mb-4">
+              <Play className="w-4 h-4" /> See It In Action
+            </div>
             <h2 className="text-3xl sm:text-4xl font-bold font-display tracking-tight mb-4">
               One Input → <span className="text-gradient">Magic Output</span>
             </h2>
@@ -300,57 +328,78 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            {/* Input side */}
-            <div className="relative bg-gray-50 dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 animate-fade-in-up">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-3 h-3 rounded-full bg-red-400" />
-                <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                <div className="w-3 h-3 rounded-full bg-green-400" />
-                <span className="text-xs text-gray-400 ml-2">blog-post.md</span>
-              </div>
-              <div className="space-y-3">
-                <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-3/4" />
-                <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-full" />
-                <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-5/6" />
-                <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-2/3" />
-                <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-full" />
-                <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-4/5" />
-              </div>
-              <div className="mt-6 flex justify-center">
-                <div className="animate-pulse-glow rounded-full p-1">
-                  <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full px-6 py-3 text-white text-sm font-bold flex items-center gap-2">
-                    <Wand2 className="w-4 h-4" /> Repurpose Now
+          {/* Demo Grid */}
+          <div className="grid lg:grid-cols-2 gap-10 items-start max-w-5xl mx-auto">
+            {/* INPUT — Terminal Window */}
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-xl bg-gray-900">
+                {/* Window bar */}
+                <div className="flex items-center gap-2 px-4 py-3 bg-gray-800 border-b border-gray-700">
+                  <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                  <span className="text-xs text-gray-400 ml-3 font-mono">blog-post.md</span>
+                </div>
+                {/* Content */}
+                <div className="p-5 font-mono text-sm space-y-3 min-h-[320px]">
+                  <div className="animate-fade-in-up">
+                    <span className="text-green-400">❯</span> <span className="text-gray-300">Uploading blog post...</span>
+                  </div>
+                  <div className="animate-fade-in-up animation-delay-200">
+                    <span className="text-green-400">❯</span> <span className="text-gray-300">Analyzing content: <span className="text-indigo-400">2,147 words</span></span>
+                  </div>
+                  <div className="animate-fade-in-up animation-delay-400">
+                    <span className="text-green-400">❯</span> <span className="text-gray-300">Detecting key topics...</span>
+                  </div>
+                  <div className="animate-fade-in-up animation-delay-600">
+                    <span className="text-amber-400">⚠</span> <span className="text-gray-500">Extracting hooks for Twitter/X...</span>
+                  </div>
+                  <div className="animate-fade-in-up animation-delay-600">
+                    <span className="text-indigo-400">⚡</span> <span className="text-gray-500">Optimizing for LinkedIn algorithm...</span>
+                  </div>
+                  <div className="animate-fade-in-up animation-delay-600">
+                    <span className="text-pink-400">📸</span> <span className="text-gray-500">Generating Instagram captions...</span>
+                  </div>
+                  <div className="animate-fade-in-up animation-delay-800">
+                    <span className="text-gray-500">Generating TikTok scripts...</span>
+                  </div>
+                  <div className="animate-fade-in-up animation-delay-800">
+                    <span className="text-gray-500">Formatting newsletter content...</span>
+                  </div>
+                  <div className="animate-fade-in-up animation-delay-800 pt-2">
+                    <span className="text-green-400">✓</span> <span className="text-green-300 font-bold">Done! 8 assets generated in 12 seconds</span>
                   </div>
                 </div>
               </div>
-              <ArrowRight className="hidden lg:block absolute -right-5 top-1/2 -translate-y-1/2 w-10 h-10 text-indigo-400 animate-float" />
-            </div>
-
-            {/* Output side */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl blur-xl" />
-              <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg animate-scale-in animation-delay-200">
-                <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-4">AI OUTPUT ↑ 8 Platform-Optimized Versions</p>
-                <div className="space-y-3">
-                  {[
-                    { platform: "Twitter/X", color: "bg-blue-50 dark:bg-blue-950", text: "text-blue-700 dark:text-blue-300", desc: "Thread with 5 high-engagement tweets..." },
-                    { platform: "LinkedIn", color: "bg-indigo-50 dark:bg-indigo-950", text: "text-indigo-700 dark:text-indigo-300", desc: "Professional post with story hook & CTA..." },
-                    { platform: "Instagram", color: "bg-pink-50 dark:bg-pink-950", text: "text-pink-700 dark:text-pink-300", desc: "Caption + hashtag set + carousel ideas..." },
-                    { platform: "TikTok", color: "bg-gray-50 dark:bg-gray-900", text: "text-gray-700 dark:text-gray-300", desc: "60-sec script + hook + trending sounds..." },
-                    { platform: "Newsletter", color: "bg-amber-50 dark:bg-amber-950", text: "text-amber-700 dark:text-amber-300", desc: "Email body + subject line variants..." },
-                  ].map((item) => (
-                    <div key={item.platform} className={`flex items-center gap-3 p-3 rounded-xl ${item.color} animate-fade-in-up`}>
-                      <div className="w-2 h-2 rounded-full bg-current opacity-50 flex-shrink-0" />
-                      <div>
-                        <p className={`text-xs font-semibold ${item.text}`}>{item.platform}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{item.desc}</p>
-                      </div>
-                      <Check className="w-4 h-4 text-green-500 ml-auto flex-shrink-0" />
-                    </div>
-                  ))}
+              {/* Arrow */}
+              <div className="hidden lg:flex absolute -right-6 top-1/2 -translate-y-1/2 z-10">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg animate-pulse-glow">
+                  <ArrowRight className="w-6 h-6 text-white" />
                 </div>
               </div>
+            </div>
+
+            {/* OUTPUT — Platform Cards */}
+            <div className="space-y-3">
+              <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-3 flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> AI OUTPUT — 8 Platform-Optimized Versions
+              </p>
+              {[
+                { icon: Twitter, platform: "Twitter/X", color: "border-l-[#1DA1F2]", bg: "bg-[#1DA1F2]/5", text: "text-[#1DA1F2]", desc: "5-tweet thread with curiosity hook, data-backed points, and CTA" },
+                { icon: Linkedin, platform: "LinkedIn", color: "border-l-[#0A66C2]", bg: "bg-[#0A66C2]/5", text: "text-[#0A66C2]", desc: "Professional post with story opening, key lessons, and engagement question" },
+                { icon: Instagram, platform: "Instagram", color: "border-l-[#E4405F]", bg: "bg-[#E4405F]/5", text: "text-[#E4405F]", desc: "Caption + 15 hashtags + carousel slide ideas with visual cues" },
+                { icon: Play, platform: "TikTok", color: "border-l-gray-900 dark:border-l-gray-500", bg: "bg-gray-100 dark:bg-gray-900", text: "text-gray-800 dark:text-gray-300", desc: "60-sec script with pattern interrupt hook + trending audio suggestion" },
+                { icon: Copy, platform: "Newsletter", color: "border-l-[#FF6B35]", bg: "bg-[#FF6B35]/5", text: "text-[#FF6B35]", desc: "Email body with 3 subject line variants + preview text" },
+              ].map((item, i) => (
+                <div key={item.platform} className={`flex items-start gap-3 p-4 rounded-xl border-l-4 ${item.color} ${item.bg} border border-gray-100 dark:border-gray-800 animate-fade-in-up hover:shadow-md transition-all`} style={{ animationDelay: `${0.2 + i * 0.15}s` }}>
+                  <item.icon className={`w-5 h-5 ${item.text} mt-0.5 flex-shrink-0`} />
+                  <div>
+                    <p className={`text-sm font-bold ${item.text}`}>{item.platform}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{item.desc}</p>
+                  </div>
+                  <Check className="w-4 h-4 text-green-500 ml-auto flex-shrink-0 mt-0.5" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
