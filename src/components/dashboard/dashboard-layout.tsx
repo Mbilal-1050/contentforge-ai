@@ -7,7 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Sparkles, LayoutDashboard, FileText, Zap, Settings,
+  Sparkles, LayoutDashboard, FileText, Zap, Settings, Users,
   CreditCard, LogOut, Menu, X, BarChart3, Plus,
 } from "lucide-react";
 
