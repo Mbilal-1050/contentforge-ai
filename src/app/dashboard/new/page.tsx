@@ -1,6 +1,5 @@
 "use client";
 
-import { Footer } from "@/components/ui/footer";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
@@ -447,7 +446,6 @@ export default function NewRepurposePage() {
       <NewRepurposePageInner />
     </Suspense>
   );
-      <Footer />
     </div>
   );
 }

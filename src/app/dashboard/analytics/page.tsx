@@ -1,6 +1,5 @@
 "use client";
 
-import { Footer } from "@/components/ui/footer";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -68,7 +67,6 @@ export default function AnalyticsPage() {
       )}
     </DashboardLayout>
   );
-      <Footer />
     </div>
   );
 }

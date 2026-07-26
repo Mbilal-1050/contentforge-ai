@@ -1,6 +1,5 @@
 "use client";
 
-import { Footer } from "@/components/ui/footer";
 import { useSession } from "next-auth/react";
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,7 +52,6 @@ export default function BillingPage() {
       </div>
     </DashboardLayout>
   );
-      <Footer />
     </div>
   );
 }
