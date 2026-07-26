@@ -513,25 +513,25 @@ export default function LandingPage() {
               <div className="space-y-2 text-sm text-gray-500">
                 <a href="#features" className="block hover:text-gray-900 dark:hover:text-white">Features</a>
                 <a href="#pricing" className="block hover:text-gray-900 dark:hover:text-white">Pricing</a>
-                <a href="#" className="block hover:text-gray-900 dark:hover:text-white">Changelog</a>
-                <a href="#" className="block hover:text-gray-900 dark:hover:text-white">Roadmap</a>
+                <a href="/changelog" className="block hover:text-gray-900 dark:hover:text-white">Changelog</a>
+                <a href="/roadmap" className="block hover:text-gray-900 dark:hover:text-white">Roadmap</a>
               </div>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
               <div className="space-y-2 text-sm text-gray-500">
-                <a href="#" className="block hover:text-gray-900 dark:hover:text-white">About</a>
-                <a href="#" className="block hover:text-gray-900 dark:hover:text-white">Blog</a>
-                <a href="#" className="block hover:text-gray-900 dark:hover:text-white">Careers</a>
-                <a href="#" className="block hover:text-gray-900 dark:hover:text-white">Contact</a>
+                <a href="/about" className="block hover:text-gray-900 dark:hover:text-white">About</a>
+                <a href="/blog" className="block hover:text-gray-900 dark:hover:text-white">Blog</a>
+                <a href="/careers" className="block hover:text-gray-900 dark:hover:text-white">Careers</a>
+                <a href="/contact" className="block hover:text-gray-900 dark:hover:text-white">Contact</a>
               </div>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Legal</h4>
               <div className="space-y-2 text-sm text-gray-500">
-                <a href="#" className="block hover:text-gray-900 dark:hover:text-white">Privacy Policy</a>
-                <a href="#" className="block hover:text-gray-900 dark:hover:text-white">Terms of Service</a>
-                <a href="#" className="block hover:text-gray-900 dark:hover:text-white">Cookie Policy</a>
+                <a href="/privacy" className="block hover:text-gray-900 dark:hover:text-white">Privacy Policy</a>
+                <a href="/terms" className="block hover:text-gray-900 dark:hover:text-white">Terms of Service</a>
+                <a href="/cookies" className="block hover:text-gray-900 dark:hover:text-white">Cookie Policy</a>
               </div>
             </div>
           </div>
