@@ -193,6 +193,4 @@ export default function DashboardPage() {
       </div>
     </DashboardLayout>
   );
-    </div>
-  );
 }

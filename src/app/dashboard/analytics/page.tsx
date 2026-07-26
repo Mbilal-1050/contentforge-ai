@@ -67,6 +67,4 @@ export default function AnalyticsPage() {
       )}
     </DashboardLayout>
   );
-    </div>
-  );
 }

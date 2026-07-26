@@ -89,6 +89,4 @@ export default function SettingsPage() {
       </div>
     </DashboardLayout>
   );
-    </div>
-  );
 }

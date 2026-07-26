@@ -52,6 +52,4 @@ export default function BillingPage() {
       </div>
     </DashboardLayout>
   );
-    </div>
-  );
 }

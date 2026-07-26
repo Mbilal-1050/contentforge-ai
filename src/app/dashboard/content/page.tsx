@@ -70,6 +70,4 @@ export default function ContentPage() {
       </div>
     </DashboardLayout>
   );
-    </div>
-  );
 }

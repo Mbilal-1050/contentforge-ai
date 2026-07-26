@@ -446,6 +446,4 @@ export default function NewRepurposePage() {
       <NewRepurposePageInner />
     </Suspense>
   );
-    </div>
-  );
 }
