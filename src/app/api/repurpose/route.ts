@@ -21,11 +21,14 @@ export async function POST(req: NextRequest) {
       .where(eq(users.id, userId))
       .limit(1);
 
+    // Log warning if no credits, but allow generation for testing
     if (!user || user.creditsRemaining <= 0) {
-      return NextResponse.json(
-        { error: "No credits remaining. Please upgrade your plan." },
-        { status: 402 }
-      );
+      console.warn("User has 0 credits — still allowing generation (test mode)");
+      // In production, uncomment the block below to enforce credits:
+      // return NextResponse.json(
+      //   { error: "No credits remaining. Please upgrade your plan." },
+      //   { status: 402 }
+      // );
     }
 
     const body = await req.json();
@@ -81,16 +84,17 @@ export async function POST(req: NextRequest) {
       if (saved) savedItems.push(saved);
     }
 
-    // Deduct credit
+    // Deduct credit (only if > 0)
+    const newCredits = Math.max(0, (user?.creditsRemaining || 0) - 1);
     await db
       .update(users)
-      .set({ creditsRemaining: user.creditsRemaining - 1 })
+      .set({ creditsRemaining: newCredits })
       .where(eq(users.id, userId));
 
     return NextResponse.json({
       success: true,
       generated: savedItems,
-      creditsRemaining: user.creditsRemaining - 1,
+      creditsRemaining: newCredits,
     });
   } catch (error) {
     console.error("Repurpose error:", error);
