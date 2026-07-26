@@ -210,6 +210,11 @@ export async function repurposeContent(
 }
 
 async function callOpenAI(prompt: string): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey || apiKey === "your_openai_api_key_here" || apiKey.startsWith("sk-your-")) {
+    throw new Error("OPENAI_API_KEY not set or using placeholder. Add real key in Vercel env vars.");
+  }
+  console.log("Using OpenAI key:", apiKey.substring(0, 8) + "...");
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -217,7 +222,7 @@ async function callOpenAI(prompt: string): Promise<string> {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model: "gpt-3.5-turbo", // Using 3.5-turbo which works with all OpenAI keys
       messages: [
         {
           role: "system",
@@ -227,14 +232,16 @@ async function callOpenAI(prompt: string): Promise<string> {
         { role: "user", content: prompt },
       ],
       temperature: 0.8,
-      max_tokens: 4000,
+      max_tokens: 2000,
     }),
   });
 
   if (!response.ok) {
     const errText = await response.text();
-    console.error(`OpenAI API error ${response.status}:`, errText);
-    throw new Error(`OpenAI API error: ${response.status} — ${errText}`);
+    console.error(`OpenAI HTTP ${response.status}:`, errText.substring(0, 500));
+    if (response.status === 401) throw new Error("OpenAI API key invalid/expired. Check platform.openai.com/api-keys");
+    if (response.status === 429) throw new Error("OpenAI rate limit/quota exceeded. Check platform.openai.com billing");
+    throw new Error("OpenAI error " + response.status + ": " + errText.substring(0, 200));
   }
 
   const data = await response.json();
@@ -255,7 +262,7 @@ async function callAnthropic(prompt: string): Promise<string> {
     },
     body: JSON.stringify({
       model: "claude-3-5-sonnet-20241022",
-      max_tokens: 4000,
+      max_tokens: 2000,
       messages: [
         {
           role: "user",
