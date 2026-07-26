@@ -222,7 +222,7 @@ export default function LandingPage() {
               ))}
             </div>
             <p className="text-sm text-gray-500">
-              <strong className="text-gray-900 dark:text-white">2,500+</strong> creators already repurposing
+              <strong className="text-gray-900 dark:text-white">15,000+</strong> creators already repurposing
             </p>
           </div>
 
@@ -268,7 +268,7 @@ export default function LandingPage() {
           <p className="text-center text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">Trusted by creators worldwide</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="flex flex-col items-center gap-1">
-              <span className="text-2xl font-extrabold text-gradient">2,500+</span>
+              <span className="text-2xl font-extrabold text-gradient">15,000+</span>
               <span className="text-xs text-gray-500">Active Creators</span>
             </div>
             <div className="flex flex-col items-center gap-1">
