@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate repurposed content
+    console.log(`Starting generation for ${targetPlatforms.length} platforms with tone: ${tone}`);
     const generated = await repurposeContent({
       content: sourceContent.content,
       title: sourceContent.title,
@@ -65,6 +66,7 @@ export async function POST(req: NextRequest) {
       language,
     });
 
+    console.log(`Repurpose returned ${generated.length} pieces`);
     // Save to DB
     const savedItems = [];
     for (const item of generated) {
@@ -96,10 +98,10 @@ export async function POST(req: NextRequest) {
       generated: savedItems,
       creditsRemaining: newCredits,
     });
-  } catch (error) {
-    console.error("Repurpose error:", error);
+  } catch (error: any) {
+    console.error("Repurpose error:", error?.message || error);
     return NextResponse.json(
-      { error: "Failed to repurpose content" },
+      { error: error?.message || "Failed to repurpose content. Please check your OpenAI API key." },
       { status: 500 }
     );
   }

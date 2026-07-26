@@ -190,6 +190,8 @@ export async function repurposeContent(
         generatedText = await callOpenAI(prompt);
       }
 
+      console.log(`✅ Generated content for ${platform}: ${generatedText.length} chars`);
+
       for (const format of platformInfo.formats) {
         results.push({
           platform,
@@ -198,8 +200,9 @@ export async function repurposeContent(
           wordCount: generatedText.split(/\s+/).length,
         });
       }
-    } catch (error) {
-      console.error(`Error generating for ${platform}:`, error);
+    } catch (error: any) {
+      console.error(`❌ Error generating for ${platform}:`, error.message || error);
+      // Don't add mock data here — let it fail silently so we can see actual error in logs
     }
   }
 
@@ -229,10 +232,16 @@ async function callOpenAI(prompt: string): Promise<string> {
   });
 
   if (!response.ok) {
-    throw new Error(`OpenAI API error: ${response.status}`);
+    const errText = await response.text();
+    console.error(`OpenAI API error ${response.status}:`, errText);
+    throw new Error(`OpenAI API error: ${response.status} — ${errText}`);
   }
 
   const data = await response.json();
+  if (!data.choices?.[0]?.message?.content) {
+    console.error("OpenAI returned empty response:", JSON.stringify(data));
+    throw new Error("OpenAI returned empty response");
+  }
   return data.choices[0].message.content;
 }
 
