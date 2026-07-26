@@ -210,7 +210,7 @@ function NewRepurposePageInner() {
           <div className="ml-auto flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-500" />
             <span className="text-sm text-gray-500">
-              {profile?.credits_remaining || 0} credits left
+              {profile?.creditsRemaining || 0} credits left
             </span>
           </div>
         </div>
