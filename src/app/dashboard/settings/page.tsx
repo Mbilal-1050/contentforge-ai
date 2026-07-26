@@ -1,5 +1,6 @@
 "use client";
 
+import { Footer } from "@/components/ui/footer";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -88,5 +89,8 @@ export default function SettingsPage() {
         </Tabs>
       </div>
     </DashboardLayout>
+  );
+      <Footer />
+    </div>
   );
 }
