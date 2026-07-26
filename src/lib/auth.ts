@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "contentforge-dev-secret-change-in-production",
   pages: {
     signIn: "/login",
     newUser: "/dashboard",
@@ -25,30 +26,45 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.password) {
+          console.error("Auth: Missing credentials");
+          return null;
+        }
 
         const { email, password } = credentials as {
           email: string;
           password: string;
         };
 
-        const [user] = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, email))
-          .limit(1);
+        try {
+          const [user] = await db
+            .select()
+            .from(users)
+            .where(eq(users.email, email.trim().toLowerCase()))
+            .limit(1);
 
-        if (!user || !user.password) return null;
+          if (!user || !user.password) {
+            console.error("Auth: User not found or no password set:", email);
+            return null;
+          }
 
-        const isValid = await bcrypt.compare(password, user.password);
-        if (!isValid) return null;
+          const isValid = await bcrypt.compare(password, user.password);
+          if (!isValid) {
+            console.error("Auth: Invalid password for:", email);
+            return null;
+          }
 
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          image: user.image,
-        };
+          console.log("Auth: Login successful for:", email);
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          };
+        } catch (err) {
+          console.error("Auth error:", err);
+          return null;
+        }
       },
     }),
   ],
